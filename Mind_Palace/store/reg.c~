@@ -1,0 +1,23 @@
+
+#include <avr/io.h>
+#ifdef _SIMULATE_
+#include "simAVRHeader.h"
+#endif
+
+#include "timer.h"
+#include "pwm.h"
+
+
+int main()
+{
+   
+    DDRD = 0xFF; PORTD = 0x00;
+    
+    
+    PORD = 0x07;
+    while (1)
+    {
+           PORD = 0x07;   
+    }
+    return 0;
+}

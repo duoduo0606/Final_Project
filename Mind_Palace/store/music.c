@@ -17,14 +17,9 @@
 #include "timer.h"
 #include "pwm.h"
 
-/*
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$ Music $$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
- */
 
 enum States {OFF, PLAY} state;
-unsigned short system_period = 80; // 1/16th of a second is 62.5 ms, just round to 63;
+unsigned short system_period = 20; // 1/16th of a second is 62.5 ms, just round to 63;
 //unsigned char bpm = 120; // 2 beats per second
 //unsigned char bpm = 60; // Let's start with 1 beat per second to make it easy and adjust later maybe.
 unsigned char eigth = 2 ; // ticks per note
@@ -98,11 +93,6 @@ void Tick()
     }
 }
 
-/*
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$ Main $$$$$$$$$$$$$$$$$$$
-$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
- */
 int main()
 {
     DDRA = 0x00; PORTA = 0xFF;
