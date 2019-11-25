@@ -45,3 +45,26 @@ unsigned short i = 0;
 	// load pin low
 	SHIFT_PORT = SHIFT_PORT & ~(0x0001<<LATCH);
 }
+
+
+void clearreg()
+{
+ unsigned short i = 0;
+	for ( i = 0; i < 16; i++)
+	{
+	
+	
+	  SHIFT_PORT = SHIFT_PORT & ~(0x0001<<DATA);
+		
+	
+	
+		// clock pin high
+		SHIFT_PORT = SHIFT_PORT | (0x0001<<CLOCK);
+		// clock pin low
+		SHIFT_PORT = SHIFT_PORT & ~(0x0001<<CLOCK);
+	}
+	// load pin high
+	SHIFT_PORT = SHIFT_PORT | (0x0001<<LATCH);
+	// load pin low
+	SHIFT_PORT = SHIFT_PORT & ~(0x0001<<LATCH);
+}
