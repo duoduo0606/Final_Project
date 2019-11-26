@@ -68,6 +68,7 @@ void LCD_Cursor(unsigned char column) {
    }
 }
 
+
 void delay_ms(int miliSec) //for 8 Mhz crystal
 
 {
@@ -78,3 +79,5 @@ void delay_ms(int miliSec) //for 8 Mhz crystal
    asm("nop");
   }
 }
+
+

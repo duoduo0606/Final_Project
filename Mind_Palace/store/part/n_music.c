@@ -1,10 +1,8 @@
 /*	Author: yxing024
- *      Partner(s) Name: 
- *	Lab Section:Final Project
-
- *      $$$$$$Mind Palace$$$$$$$
-
- *	Exercise Description: [maze game]
+ *  Partner(s) Name: 
+ *	Lab Section:
+ *	Assignment: Lab #  Exercise #
+ *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
@@ -19,12 +17,11 @@
 
 
 enum States {OFF, PLAY} state;
-unsigned short system_period = 20; // 1/16th of a second is 62.5 ms, just round to 63;
-//unsigned char bpm = 120; // 2 beats per second
-//unsigned char bpm = 60; // Let's start with 1 beat per second to make it easy and adjust later maybe.
-unsigned char eigth = 2 ; // ticks per note
-unsigned char quarter = 6; // ticks per note 
-unsigned char half = 8; // ticks per note 
+unsigned short system_period = 160; 
+unsigned char n8 = 2 ; // ticks per note
+unsigned char n4 = 4; // ticks per note 
+unsigned char n2 = 8; // ticks per note 
+unsigned char th = 12;
 unsigned char whole = 16;
 
 double c4 = 261.63;
@@ -40,15 +37,16 @@ double e5 = 659.25;
 double f5 = 698.46;
 double g5 = 783.99;
 
-unsigned char notes_number = 12;
+unsigned char notes_number = 58;
 unsigned char position = 0, count = 0;
 
 void Tick()
 {
-    double music_notes[] = {g5,f5,a4,b4,e5,d5,f4,g4,d5,c5,e4,g4,c5};
-    unsigned char note_length[] = {quarter,quarter,half,half,quarter,quarter,half,half,quarter,quarter,half,half,whole};
+ 
+  double music_notes[] = {e4,a4,b4,c5,b4,a4,f4,0,f4,a4,b4,c5,b4,a4,e4,0,e4,a4,b4,c5,b4,a4,f4,0,d5,c5,b4,c5,b4,a4,e4,0,  f5,e5,d5,e5,d5,c5, a4,b4, e5,d5,c5,d5,c5,b4, a4,0 ,f5,e5,d5,e5,d5,c5,a4,b4,e5  };
+  unsigned char note_length[] = {n8,n8,n8,n8,n8,n8,th,n8, n8,n8,n8,n8,n8,n8,th,n8, n8,n8,n8,n8,n8,n8,th,n8, n8,n8,n8,n8,n8,n8,th,n8, n8,n8,n8,n8,n8,n8,n2,n4, n8,n8,n8,n8,n8,n8,th,n8,n8,n8,n8,n8,n8,n8,n2,n4,whole};
 
-    unsigned char tempA = (~PINA & 0x08);
+  unsigned char tempA = (~PINA & 0x08) >> 3;
     
     switch(state)
     {
@@ -95,9 +93,9 @@ void Tick()
 
 int main()
 {
-    DDRA = 0x00; PORTA = 0xFF;
+    DDRA = 0xc0; PORTA = 0x3F;
     DDRB = 0xFF; PORTB = 0x00;
-   
+ 
     
     
     PWM_on();
@@ -119,5 +117,3 @@ int main()
     }
     return 0;
 }
-
-
