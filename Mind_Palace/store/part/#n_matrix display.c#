@@ -1,0 +1,83 @@
+/*	Author: yxing024
+ *      Partner(s) Name: 
+ *	Lab Section:Final Project
+
+ *      $$$$$$Mind Palace$$$$$$$
+
+ *	Exercise Description: [maze game]
+ *
+ *	I acknowledge all content contained herein, excluding template or example
+ *	code, is my own original work.
+ */
+
+
+
+#include "timer.h"
+#include "pwm.h"
+#include "reg.c"
+#include "io.c"
+#include "ADC.c"
+
+int main()
+{
+    DDRD = 0xff; PORTD = 0x00;
+    DDRC = 0xFF; PORTC = 0x00;
+    DDRA = 0xC0; PORTA = 0x3F;
+ 
+    while (1)
+    {
+      
+	
+      
+      PORTD = 0x00;
+      if(!(PINA & 0x10)){
+      send(0xfff7);
+      send(0x38eb);
+      send(0x3cab);
+      send(0x34eb);
+      send(0x1ceb);
+      send(0x3ccb);
+      send(0x3ce9);
+      send(0xfffe);
+      
+      }
+      clearreg();
+    }
+    return 0;
+}
+
+
+
+
+ PORTD = 0x00;
+      if(!(PINA & 0x10)){
+      send(0xfff7);
+      send(0x38eb);
+      send(0x3cab);
+      send(0x34eb);
+      send(0x1ceb);
+      send(0x3ccb);
+      send(0x3ce9);
+      send(0xfffe); 
+      clearreg();
+      if(! ((PINA&0x08)>>3)) {
+	send(0x6b7b);
+	send(0x677b);
+	send(0xad3f);
+	send(0x8d7f);
+	send(0x6f5b);
+	send(0x6f79);
+	clearreg();
+      }
+      }
+      if((PINA & 0x10)){
+      ADC_init();
+      m = ADC_Read(0);
+      //n = ADC_Read(1);
+      LCD_init();
+
+      sprintf(str1,"X = %d",m);
+      LCD_DisplayString(1,str1);
+      delay_ms(5);
+     
+      
