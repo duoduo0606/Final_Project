@@ -22,6 +22,8 @@
 #include "reg.c"
 #include "io.c"
 #include "adc.c"
+#inclued "joys.c"
+#include "matrix.c"
 
 //---------------------------sharp define-----------------------------
 
@@ -59,7 +61,7 @@ enum GAMEen_states { GAMEen_start, GAMEen_on, GAMEen_off } GAMEen_state;
 int GAMEen_Tick(int state) {
   // Local variables
 	
-  static unsigned short count = 0;
+
 
   // === Transitions ===
   switch(state) {
@@ -76,7 +78,7 @@ int GAMEen_Tick(int state) {
 			break;
 	
 		default:
-			state = GAMEen_start;
+		  state = GAMEen_start;
 			break;
 	}
 
@@ -95,7 +97,6 @@ int GAMEen_Tick(int state) {
 			break;
 	
 		default:
-			state = GAMEen_start;
 			break;
 	}
 	return state;
@@ -107,7 +108,7 @@ enum GAMElgc_states { GAMElgc_start, GAMElgc_on, GAMElgc_off } GAMElgc_state;
 int GAMElgc_Tick(int state) {
   // Local variables
 	
-  static unsigned short count = 0;
+
 
   // === Transitions ===
   switch(state) {
@@ -150,7 +151,7 @@ int GAMElgc_Tick(int state) {
 };
 
 //---------------------------Task3 LED--------------------------
-enum LED_states { LED_start, LED_wait, LED_frame0, LED_frame1, LED_dot, LED_off } LED_state;
+enum LED_states { LED_start, LED_wait, LED_map } LED_state;
 int LED_Tick(int state) {
   // Local variables
 	
@@ -163,17 +164,13 @@ int LED_Tick(int state) {
 			break;
 
 		case LED_wait:
-		  state = frame? LED_frame1:LED_frame0;	
+		  state = game_on?LED_map:LED_wait;	
 			break;
 
-                case LED_frame0:
-		  state = frame? LED_frame1:LED_frame0;	
-			break;
-
-	        case LED_frame1:
-		  state = frame? LED_frame1:LED_frame0;	
-			break;
-
+                case LED_map:
+		  state = game_on?LED_map:LED_wait;	
+		   	break;
+	       
 		default:
 			state = LED_start;
 			break;
@@ -202,24 +199,27 @@ int LED_Tick(int state) {
 
 		case LED_wait:
 		   clearreg();	
-			break;
-
-                case LED_frame0:
-		  state = frame? LED_frame1:LED_frame0;	
-			break;
-
-	        case LED_frame1:
-		  state = frame? LED_frame1:LED_frame0;	
-			break;
+		        break;
+             
+	        case LED_map:
+		  send(0xfff7);
+		  send(0x79eb);
+		  send(0xb4eb);
+		  send(0x3fbb);
+		  send(0x1fff);
+		  send(0x3ccb);
+		  send(0xfce9);
+		  send(0xfffe); 
+		  clearreg();
+		        break;
 
 		default:
-			state = LED_start;
 			break;
 	}
 	return state;
 };
 //---------------------------Task4 LCD-----------------------------------
-enum LCD_Displaystates {LCD_Start, LCD_Wait, LCD_Play, LCD_Pause, LCD_UpdateScore, LCD_UpdateLife, 
+enum LCD_states {LCD_start, LCD_wait, LCD_play, LCD_Pause, LCD_UpdateScore, LCD_UpdateLife, 
 						LCD_WinLevel, LCD_LoseLevel, LCD_WinGame, LCD_LoseGame} LCD_Displaystate;
 int LCDDisplay_Tick(int state) {
 	// Local variables
@@ -439,58 +439,47 @@ int main()
 
     // variable setting
     
-       const unsigned short numTasks = 7;
+       const unsigned short numTasks = 5;
        const unsigned short GCDPeriod = 25;
        task tasks[numTasks];
        unsigned char i = 0;
     
-    // Task 1: Input
+    // Task 1: GAMEen
         tasks[i].state = 0;
         tasks[i].period = 25;
         tasks[i].elapsedTime = 0;
         tasks[i].TickFct = &Input_Tick;
         i++;
 
-    // Task 2: Paddle
+    // Task 2: GAMElgc
 	tasks[i].state = 0;
 	tasks[i].period = 50;
 	tasks[i].elapsedTime = 0;
 	tasks[i].TickFct = &Paddle_Tick;
 	i++;
 
-    // Task 3: Level
+    // Task 3: LED
 	tasks[i].state = 0;
 	tasks[i].period = 50;
 	tasks[i].elapsedTime = 0;
 	tasks[i].TickFct = &Level_Tick;
 	i++;
 
-    // Task 4: Boss
+    // Task 4: LCD
 	tasks[i].state = 0;
 	tasks[i].period = 250;
 	tasks[i].elapsedTime = 0;
 	tasks[i].TickFct = &Boss_Tick;
 	i++;
 
-    // Task 5: Ball
+    // Task 5: INPUT
 	tasks[i].state = 0;
 	tasks[i].period = 250;
 	tasks[i].elapsedTime = 0;
 	tasks[i].TickFct = &Ball_Tick;
 	i++;
 
-    // Task 6: LEDDisplay
-	tasks[i].state = 0;
-	tasks[i].period = 25;
-	tasks[i].elapsedTime = 0;
-	tasks[i].TickFct = &LEDDisplay_Tick;
-	i++;
 
-    // Task 7: LCDDisplay
-	tasks[i].state = 0;
-	tasks[i].period = 500;
-	tasks[i].elapsedTime = 0;
-	tasks[i].TickFct = &LCDDisplay_Tick;
 
     TimerSet(GCDPeriod);
     TimerOn();
