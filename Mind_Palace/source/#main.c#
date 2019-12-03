@@ -51,6 +51,7 @@
 
 static unsigned char game_en = 0;
 static unsigned char game_on = 0;
+unsigned char 
 unsigned char game_win = 0;
 
 unsigned char frame = 0;
@@ -276,6 +277,7 @@ int GAMElgc_Tick(int state) {
 		case GAMElgc_play:
 		  dotcol = 2;
 		  dotrow = 2;
+		  game_play = 1;
 		 
 			break;
 
