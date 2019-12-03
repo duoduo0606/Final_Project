@@ -32,6 +32,7 @@
 
 #define switch0 (PINA & 0x10) >> 4
 #define button (~PINA & 0x08) >> 3
+#define gbutton (~PINA & 0x20) >> 5
 
 //---------------------------state machine----------------------------
 
@@ -51,7 +52,9 @@
 
 static unsigned char game_en = 0;
 static unsigned char game_on = 0;
-unsigned char game_win = 0;
+unsigned char game_play = 0;
+//unsigned char game_st = 0;
+static unsigned char game_win = 0;
 
 unsigned char frame = 0;
 
@@ -195,7 +198,7 @@ enum GAMElgc_states { GAMElgc_start, GAMElgc_play, GAMElgc_check, GAMElgc_movel,
 int GAMElgc_Tick(int state) {
   // === Local variables ===
 
-
+  game_win = 0;
   
   unsigned char map[8][8] = {{1,1,1,1,1,1,1,1},
 			     {1,0,1,1,0,0,0,1},
@@ -214,7 +217,7 @@ int GAMElgc_Tick(int state) {
 			break;
 
 		case GAMElgc_play:
-		  if (game_on )
+		  if ((game_on)&&(gbutton))
 		    {
 		      state = GAMElgc_check;
 		    }
@@ -242,6 +245,10 @@ int GAMElgc_Tick(int state) {
 		    else if ((left || right || up || down) == 0){
 		     state = GAMElgc_check;
 		   }
+
+		    if ((dotcol == 7)&&(dotrow == 7)){
+		      state = GAMElgc_win;
+		    }
 		  	break;
 
                 case GAMElgc_movel:
@@ -259,7 +266,7 @@ int GAMElgc_Tick(int state) {
 			break;
 
                 case GAMElgc_win:
-		  state = GAMElgc_play;
+		  state = gbutton?GAMElgc_play:GAMElgc_win;
 			break;
 
 		default:
@@ -276,11 +283,13 @@ int GAMElgc_Tick(int state) {
 		case GAMElgc_play:
 		  dotcol = 2;
 		  dotrow = 2;
-		 
+		  game_win = 0;
+		  game_play = 0;
+		  stepcnt = 0;
 			break;
 
                 case GAMElgc_check:
-		  
+		  game_play = 1;
 			break;
 
                 case GAMElgc_movel:
@@ -310,6 +319,7 @@ int GAMElgc_Tick(int state) {
 			break;
 
                 case GAMElgc_win:
+		  game_win = 1;
 		 	break;
 	
 	}
@@ -364,17 +374,17 @@ int LED_Tick(int state) {
 			break;
 
 		case LED_wait:
-		  send(0xfff7);
-		  send(0x38eb);
-		  send(0x3cab);
-		  send(0x34eb);
-		  send(0x1ceb);
-		  send(0x3ccb);
-		  send(0x3ce9);
-		  send(0xfffe);
+		  //send(0xfff7);
+		  // send(0x38eb);
+		  // send(0x3cab);
+		  // send(0x34eb);
+		  //  send(0x1ceb);
+		  //  send(0x3ccb);
+		  //  send(0x3ce9);
+		  //  send(0xfffe);
 
         
-		   send(0x2c6b);
+		    send(0x2c6b);
 		  //delay_ms(10);
 		  //  clearreg();	
 			break;
@@ -412,7 +422,7 @@ int LED_Tick(int state) {
 
 //---------------------------Task5 LCD-----------------------------------
 
-enum LCD_states { LCD_start, LCD_wait} LCD_state;
+enum LCD_states { LCD_start, LCD_wait, LCD_on, LCD_win} LCD_state;
 int LCD_Tick(int state) {
   // Local variables
 	
@@ -421,37 +431,56 @@ int LCD_Tick(int state) {
   // === Transitions ===
   switch(state) {
 		case LCD_start:
-		 state = game_on? LCD_wait:LCD_start; 
+		  state = game_on? LCD_wait:LCD_start; 
 			break;
 
 		case LCD_wait:
-		  state = game_on? LCD_wait:LCD_start;	
+		  
+		  state = (game_on && game_play)? LCD_on:LCD_wait;
+		 
 			break;
 
+                case LCD_on:
+		  	  
+		  state = (game_on && game_win)? LCD_win:LCD_on;
+			break;	
                 
+                case LCD_win:
+		  
+		      state = (game_on && game_win)?LCD_win:LCD_start;
+		    
+		  break;
 
-		default:
-			state = LCD_start;
-			break;
+		  	default:
+		  	state = LCD_start;
+		  	break;
 	}
 
   // === Actions ===
     switch(state) {
 		case LCD_start:
 		  LCD_ClearScreen();
-
+        
 			break;
 
-		case LED_wait:
-		  LCD_DisplayString(1,"GAME START");
-		 
+                case LCD_wait:
+	        
+		  LCD_DisplayString(1,"Press GREEN one");
+			break;
+
+		case LCD_on:
+		 		 
 		  sprintf(buffer, "Cur_Step:%d", stepcnt);
 		  LCD_DisplayString(17,buffer);
-	        
-		  
+	        	  
 			break;
 
-               
+               	case LCD_win:
+		 
+		  LCD_DisplayString(1,"win");		 
+		 
+			break;
+
 
 
 	       
