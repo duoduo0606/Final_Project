@@ -9,7 +9,7 @@
 #ifndef ADC_H
 #define ADC_H
 
-#define F_CPU 8000000UL					/* Define CPU Frequency e.g. here its 8 Mhz */
+//#define F_CPU 8000000UL					/* Define CPU Frequency e.g. here its 8 Mhz */
 #include <avr/io.h>						/* Include AVR std. library file */
 #include <util/delay.h>
 #define ipin PINA
