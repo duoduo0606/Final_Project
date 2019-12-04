@@ -62,8 +62,6 @@ unsigned char dotcol = 2;
 unsigned char dotrow = 2;
 
 unsigned char stepcnt = 0;
-unsigned char fnlstep = 0;
-
  
 unsigned char right = 0;
 unsigned char left = 0;
@@ -202,23 +200,14 @@ int GAMElgc_Tick(int state) {
 
   game_win = 0;
   
-  unsigned char map[16][8] = {{1,1,1,1,1,1,1,1},
+  unsigned char map[8][8] = {{1,1,1,1,1,1,1,1},
 			     {1,0,1,1,0,0,0,1},
 			     {1,0,0,0,0,1,0,1},
                              {1,1,0,1,1,0,0,1},
 			     {1,1,0,1,1,0,1,1},
 			     {1,0,0,0,0,0,0,1},
 			     {1,0,1,0,0,1,0,1},
-                             {1,0,0,1,1,1,0,1},
-			     
-			     {1,1,0,1,0,0,0,1},
-			     {1,0,0,1,1,1,0,1},
-                             {1,0,1,1,1,1,0,1},
-			     {1,0,0,0,0,0,0,1},
-			     {1,1,1,0,1,1,1,1},
-			     {1,1,0,0,0,0,1,1},
-			     {1,1,0,1,1,0,0,1},
-                             {1,1,1,1,1,1,1,1}};
+                             {1,1,1,1,1,1,0,1}};
   
   
   // === Transitions ===
@@ -257,7 +246,7 @@ int GAMElgc_Tick(int state) {
 		     state = GAMElgc_check;
 		   }
 
-		     if ((dotcol == 15)&&(dotrow == 7)){
+		    if ((dotcol == 7)&&(dotrow == 7)){
 		      state = GAMElgc_win;
 		    }
 		  	break;
@@ -297,7 +286,6 @@ int GAMElgc_Tick(int state) {
 		  game_win = 0;
 		  game_play = 0;
 		  stepcnt = 0;
-		  
 			break;
 
                 case GAMElgc_check:
@@ -305,32 +293,28 @@ int GAMElgc_Tick(int state) {
 			break;
 
                 case GAMElgc_movel:
-		  if ((map[dotcol-2][dotrow-1] == 0)&&(dotcol >= 3)){
+		  if ((map[dotcol-2][dotrow-1] == 0)&&(dotcol > 2)){
 		    dotcol--;
 		    stepcnt++;
-		    fnlstep++;
 		  }
 			break;
 
                 case GAMElgc_mover:
-		  if((map[dotcol][dotrow-1] == 0)&&(dotcol <= 14 )){
+		  if((map[dotcol][dotrow-1] == 0)&&(dotcol <= 6 )){
 		    dotcol++;
 		    stepcnt++;
-		    fnlstep++;
 		  }
 			break;
                 case GAMElgc_moveu:
-		  if ((map[dotcol-1][dotrow] == 0)&&(dotrow <= 6 )){
+		  if ((map[dotcol-1][dotrow] == 0)&&(dotrow <=6 )){
 		    dotrow++;
 		    stepcnt++;
- fnlstep++;
 		  }
 			break;
                  case GAMElgc_moved:
-		   if((map[dotcol-1][dotrow-2] == 0)&&(dotrow >= 3)){
+		   if((map[dotcol-1][dotrow-2] == 0)&&(dotrow > 2)){
 		     dotrow--;
 		     stepcnt++;
- fnlstep++;
 		   } 
 			break;
 
@@ -411,7 +395,7 @@ int LED_Tick(int state) {
 
                 case LED_frame:
 		 
-		  if (dotcol <= 8){
+		  
 		  send(0xfff7);
 		  send(0x79eb);
 		  
@@ -421,24 +405,11 @@ int LED_Tick(int state) {
 		  send(0x1fff);
 		  send(0x3ccb);
 		  send(0xfce9);
-		   send(0xbdfa); 
+		  send(0xfffe); 
 		   send(litled(dotcol,dotrow));
 		 
 		  clearreg();
-		  } 
 		  
-		  if (dotcol > 8){
-		    send(0x3fe3);
-		    send(0xb9fb);
-		    send(0xf5fb);
-		    send(0x3cab);
-		    send(0xdeff);
-		    send(0x3ecf);
-		    send(0x3ff9);
-		    send(0xfffe);
-		    send(litled(dotcol-8,dotrow));
-		    clearreg();
-		  }
 			break;
 
 	       
@@ -456,27 +427,16 @@ int LED_Tick(int state) {
 
 //---------------------------Task5 LCD-----------------------------------
 
-enum LCD_states { LCD_start, LCD_wait0,LCD_wait, LCD_on0, LCD_on, LCD_win0, LCD_win} LCD_state;
+enum LCD_states { LCD_start, LCD_wait, LCD_on, LCD_win} LCD_state;
 int LCD_Tick(int state) {
   // Local variables
 	
  char buffer[20];
- unsigned char minstep ;
 
- 
   // === Transitions ===
   switch(state) {
 		case LCD_start:
-		  state = game_on? LCD_wait0:LCD_start; 
-			break;
-
-               case LCD_wait0:
-		  
-		  // state = (game_on && game_play)? LCD_on:LCD_wait;
-		  
-	        state = LCD_wait;
-		  
-
+		  state = game_on? LCD_wait:LCD_start; 
 			break;
 
 		case LCD_wait:
@@ -485,7 +445,7 @@ int LCD_Tick(int state) {
 		  
 		  if (game_on){
 		    if (game_play){
-		      state = LCD_on0;
+		      state = LCD_on;
 		    }
 		    else {state = LCD_wait;}
 		  }
@@ -493,37 +453,20 @@ int LCD_Tick(int state) {
 
 			break;
 
-                case LCD_on0:
-		  	  
-		  // state = (game_on && game_win)? LCD_win:LCD_on;
-			
-		 state = LCD_on;
-
-			 break;	
-
                 case LCD_on:
 		  	  
 		  // state = (game_on && game_win)? LCD_win:LCD_on;
 			
 		  if (game_on){
 		    if (game_win){
-		      state = LCD_win0;
+		      state = LCD_win;
 		    }
 		    else {state = LCD_on;}
 		  }
 		  else{state = LCD_start;}
 
 			 break;	
-
-                 case LCD_win0:
-		  
-		  // state = (game_on && game_win)?LCD_win:LCD_start;
-		    
-		 
-		      state = LCD_win;
-		   
-		  break;
-
+                
                 case LCD_win:
 		  
 		  // state = (game_on && game_win)?LCD_win:LCD_start;
@@ -550,47 +493,25 @@ int LCD_Tick(int state) {
         
 			break;
 
-                case LCD_wait0:
+                case LCD_wait:
 	        
 		  LCD_DisplayString(1,"Find your lover");
 			break;
 
-                case LCD_wait:
-	        
-			break;
-
-		case LCD_on0:
-		  if(minstep == 0){minstep = fnlstep;}
-		  if(fnlstep < minstep){minstep = fnlstep;}	 
-		  sprintf(buffer, "MIN STEP:%d", minstep);
+		case LCD_on:
+		 		 
+		  sprintf(buffer, "Cur_Step:%d", stepcnt);
 		  LCD_DisplayString(1,buffer);
 	        	  
-		  fnlstep = 0;
 			break;
 
-                case LCD_on:
-		 		 
-		  // sprintf(buffer, "Cur_Step:%d", stepcnt);
-		  //  LCD_DisplayString(1,buffer);
-	        	  
-			break;
-			//    case LCD_on:
-		 		 
-			//	  sprintf(buffer, "Cur_Step:%d", stepcnt);
-			//	  LCD_DisplayString(1,buffer);
-	        	  
-			//	break;
-	case LCD_win0:
-		  if (stepcnt == 22){
+               	case LCD_win:
+		  if (stepcnt == 10){
 		    LCD_DisplayString(1,"You find her");		 
 		  }
 		  else {
 		    LCD_DisplayString(1,"She LEFT");
 		  }
-			break;
-
-               	case LCD_win:
-	
 			break;
 
 
@@ -702,7 +623,7 @@ int main()
     // variable setting
     
        const unsigned short numTasks = 6;
-       const unsigned short GCDPeriod = 1;
+       const unsigned short GCDPeriod = 20;
        task tasks[numTasks];
        unsigned char i = 0;
     
@@ -736,7 +657,7 @@ int main()
 
     // Task 5: LCD
 	tasks[i].state = 0;
-	tasks[i].period = 211;
+	tasks[i].period = 200;
 	tasks[i].elapsedTime = 0;
 	tasks[i].TickFct = &LCD_Tick;
 	i++;
