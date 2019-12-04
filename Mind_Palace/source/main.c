@@ -50,13 +50,13 @@
 
 //---------------------------global variable--------------------------
 
-static unsigned char game_en = 0;
-static unsigned char game_on = 0;
+ unsigned char game_en = 0;
+ unsigned char game_on = 0;
 unsigned char game_play = 0;
 //unsigned char game_st = 0;
 static unsigned char game_win = 0;
 
-unsigned char frame = 0;
+//unsigned char frame = 0;
 
 unsigned char dotcol = 2;
 unsigned char dotrow = 2;
@@ -334,7 +334,7 @@ int GAMElgc_Tick(int state) {
 
 
 //---------------------------Task4 LED--------------------------
-enum LED_states { LED_start, LED_wait, LED_frame} LED_state;
+enum LED_states { LED_start, LED_init, LED_frame} LED_state;
 int LED_Tick(int state) {
   // Local variables
 	
@@ -343,15 +343,20 @@ int LED_Tick(int state) {
   // === Transitions ===
   switch(state) {
 		case LED_start:
-		  state = LED_wait;
+		  	  state = LED_init;
+
+		  
 			break;
 
-		case LED_wait:
-		  state = game_on? LED_frame:LED_wait;	
-			break;
+                case LED_init:
+		 	  state = game_on? LED_frame:LED_init;
 
-                case LED_frame:
-		  state = game_on? LED_frame:LED_wait;	
+			break;
+               
+                 case LED_frame:
+		   state = game_on? LED_frame:LED_init;	
+		  
+		 
 			break;
 
 		default:
@@ -363,48 +368,48 @@ int LED_Tick(int state) {
     switch(state) {
 		case LED_start:
 		  
-
-		  //send(0x6b7b);
-		  // send(0x677b);
-		  //  send(0xad3f);
-		  //  send(0x8d7f);
-		  //  send(0x6f5b);
-		  //	  send(0x6f79);
-		  //	  clearreg();
+		  /*
+		 send(0x6b7b);
+		  send(0x677b);
+		  send(0xad3f);
+		  send(0x8d7f);
+		  send(0x6f5b);
+		  send(0x6f79);
+		  clearreg();
+		  */
+		  
+			  	 
 			break;
 
-		case LED_wait:
-		  //send(0xfff7);
-		  // send(0x38eb);
-		  // send(0x3cab);
-		  // send(0x34eb);
-		  //  send(0x1ceb);
-		  //  send(0x3ccb);
-		  //  send(0x3ce9);
-		  //  send(0xfffe);
-
-        
-		    send(0x2c6b);
-		  //delay_ms(10);
-		  //  clearreg();	
-			break;
+        	case LED_init:
+		  
+		  
+		 send(0x6b7b);
+		  send(0x677b);
+		  send(0xad3f);
+		  send(0x8d7f);
+		  send(0x6f5b);
+		  send(0x6f79);
+		  clearreg();
+		  break;
 
                 case LED_frame:
+		 
+		  
 		  send(0xfff7);
 		  send(0x79eb);
+		  
+		  
 		  send(0xb4eb);
 		  send(0x3fbb);
 		  send(0x1fff);
 		  send(0x3ccb);
 		  send(0xfce9);
 		  send(0xfffe); 
-		  send(litled(dotcol,dotrow));
-		  send(0x2c6b);
-
-        
-		  // send(0x2c6b);
-		  // delay_ms(10);
-		  //clearreg();
+		   send(litled(dotcol,dotrow));
+		 
+		  clearreg();
+		  
 			break;
 
 	       
@@ -436,19 +441,44 @@ int LCD_Tick(int state) {
 
 		case LCD_wait:
 		  
-		  state = (game_on && game_play)? LCD_on:LCD_wait;
-		 
+		  // state = (game_on && game_play)? LCD_on:LCD_wait;
+		  
+		  if (game_on){
+		    if (game_play){
+		      state = LCD_on;
+		    }
+		    else {state = LCD_wait;}
+		  }
+		  else{state = LCD_start;}
+
 			break;
 
                 case LCD_on:
 		  	  
-		  state = (game_on && game_win)? LCD_win:LCD_on;
-			break;	
+		  // state = (game_on && game_win)? LCD_win:LCD_on;
+			
+		  if (game_on){
+		    if (game_win){
+		      state = LCD_win;
+		    }
+		    else {state = LCD_on;}
+		  }
+		  else{state = LCD_start;}
+
+			 break;	
                 
                 case LCD_win:
 		  
-		      state = (game_on && game_win)?LCD_win:LCD_start;
+		  // state = (game_on && game_win)?LCD_win:LCD_start;
 		    
+		  if (game_on){
+		    if (game_win){
+		      state = LCD_win;
+		    }
+		    else {state = LCD_start;}
+		  }
+		  else{state = LCD_start;}
+
 		  break;
 
 		  	default:
@@ -465,20 +495,23 @@ int LCD_Tick(int state) {
 
                 case LCD_wait:
 	        
-		  LCD_DisplayString(1,"Press GREEN one");
+		  LCD_DisplayString(1,"Find your lover");
 			break;
 
 		case LCD_on:
 		 		 
 		  sprintf(buffer, "Cur_Step:%d", stepcnt);
-		  LCD_DisplayString(17,buffer);
+		  LCD_DisplayString(1,buffer);
 	        	  
 			break;
 
                	case LCD_win:
-		 
-		  LCD_DisplayString(1,"win");		 
-		 
+		  if (stepcnt == 10){
+		    LCD_DisplayString(1,"You find her");		 
+		  }
+		  else {
+		    LCD_DisplayString(1,"She LEFT");
+		  }
 			break;
 
 
@@ -574,6 +607,9 @@ unsigned char note_length[] = {n8,n8,n8,n8,n8,n8,th,n8, n8,n8,n8,n8,n8,n8,th,n8,
     }
     return state;
 }
+
+
+
 //---------------------------main function----------------------------
 int main()
 {
@@ -587,13 +623,13 @@ int main()
     // variable setting
     
        const unsigned short numTasks = 6;
-       const unsigned short GCDPeriod = 10;
+       const unsigned short GCDPeriod = 20;
        task tasks[numTasks];
        unsigned char i = 0;
     
     // Task 1: INPUT
         tasks[i].state = 0;
-        tasks[i].period = 20;
+        tasks[i].period = 40;
         tasks[i].elapsedTime = 0;
         tasks[i].TickFct = &INPUT_Tick;
         i++;
@@ -633,6 +669,9 @@ int main()
 	tasks[i].TickFct = &MUSIC_Tick;
 	i++;	
   
+
+  
+
 
     TimerSet(GCDPeriod);
     TimerOn();
